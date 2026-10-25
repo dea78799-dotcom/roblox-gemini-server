@@ -15,6 +15,7 @@ app.post('/chat', async (req, res) => {
             return res.status(500).json({ reply: "Lỗi: Chưa cấu hình GEMINI_API_KEY trên Vercel!" });
         }
 
+        // Sử dụng model gemini-1.5-flash chuẩn xác
         const apiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -25,17 +26,15 @@ app.post('/chat', async (req, res) => {
 
         const data = await apiResponse.json();
         
-        // Kiểm tra kỹ cấu trúc dữ liệu trả về từ Gemini
         if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
             const replyText = data.candidates[0].content.parts[0].text;
             res.json({ reply: replyText });
         } else {
-            // Trả về lỗi chi tiết từ Google để dễ kiểm tra
-            res.json({ reply: "Google từ chối: " + (data.error ? data.error.message : "Dữ liệu trả về trống.") });
+            res.json({ reply: "Phản hồi từ Google: " + (data.error ? data.error.message : "Lỗi dữ liệu trống.") });
         }
 
     } catch (error) {
-        res.json({ reply: "Lỗi Server nội bộ: " + error.message });
+        res.json({ reply: "Lỗi Server: " + error.message });
     }
 });
 
